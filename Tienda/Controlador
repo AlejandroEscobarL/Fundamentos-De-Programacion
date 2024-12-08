@@ -1,0 +1,47 @@
+package com.tienda.controller;
+
+import com.tienda.model.Producto;
+import com.tienda.service.ProductoService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+@RestController
+@RequestMapping("/api/productos")
+public class ProductoController {
+
+    @Autowired
+    private ProductoService productoService;
+
+    // Obtener todos los productos
+    @GetMapping
+    public List<Producto> obtenerProductos() {
+        return productoService.obtenerTodos();
+    }
+
+    // Obtener un producto por ID
+    @GetMapping("/{id}")
+    public ResponseEntity<Producto> obtenerProducto(@PathVariable Long id) {
+        return productoService.obtenerPorId(id)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
+
+    // Crear un nuevo producto
+    @PostMapping
+    public Producto agregarProducto(@RequestBody Producto producto) {
+        return productoService.guardar(producto);
+    }
+
+    // Eliminar un producto por ID
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> eliminarProducto(@PathVariable Long id) {
+        if (productoService.obtenerPorId(id).isPresent()) {
+            productoService.eliminar(id);
+            return ResponseEntity.noContent().build();
+        }
+        return ResponseEntity.notFound().build();
+    }
+}
